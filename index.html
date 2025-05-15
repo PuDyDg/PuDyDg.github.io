@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- Đặt cấu hình cho trình duyệt và thiết lập phông chữ -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>DSAI</title>
-  <!-- Link đến font Roboto từ Google Fonts -->
+  <!-- Sử dụng phông chữ Roboto từ Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
-  <style>
-    /* ===== TOÀN BỘ PHẦN GIAO DIỆN ===== */
 
-    /* Cài đặt mặc định cho body */
+  <style>
+    /* Thiết lập giao diện tổng thể của trang */
     body {
       margin: 0;
       font-family: 'Roboto', sans-serif;
@@ -20,13 +20,12 @@
       padding: 30px 15px;
     }
 
-    /* Tiêu đề */
     h2 {
       margin-bottom: 20px;
       color: #333;
     }
 
-    /* Khung chứa toàn bộ giao diện chat */
+    /* Giao diện container chính của khung chat */
     .chat-container {
       background: #ffffff;
       width: 100%;
@@ -38,7 +37,7 @@
       overflow: hidden;
     }
 
-    /* Thanh đầu (header) của chat */
+    /* Phần header chứa lựa chọn session và nút tạo mới */
     .header {
       padding: 15px;
       border-bottom: 1px solid #ddd;
@@ -47,7 +46,7 @@
       align-items: center;
     }
 
-    /* Khu vực chứa tin nhắn */
+    /* Phần nội dung chat */
     .chat {
       display: flex;
       flex-direction: column;
@@ -57,7 +56,7 @@
       background-color: #f9f9f9;
     }
 
-    /* Tin nhắn */
+    /* Tin nhắn chung */
     .message {
       padding: 10px 14px;
       margin: 8px 0;
@@ -65,9 +64,10 @@
       max-width: 70%;
       clear: both;
       line-height: 1.4;
+      white-space: pre-wrap;
     }
 
-    /* Tin nhắn của người dùng */
+    /* Tin nhắn từ người dùng */
     .user {
       align-self: flex-end;
       background-color: #d0e6ff;
@@ -75,7 +75,7 @@
       border-top-right-radius: 0;
     }
 
-    /* Tin nhắn của bot */
+    /* Tin nhắn từ bot */
     .bot {
       align-self: flex-start;
       background-color: #d4edda;
@@ -83,7 +83,7 @@
       border-top-left-radius: 0;
     }
 
-    /* Khu nhập liệu */
+    /* Khu vực nhập tin nhắn */
     .input-area {
       display: flex;
       padding: 10px;
@@ -91,7 +91,6 @@
       background-color: #fff;
     }
 
-    /* Ô input cho người dùng */
     .input-area input {
       flex: 1;
       padding: 10px;
@@ -101,7 +100,6 @@
       font-size: 16px;
     }
 
-    /* Nút gửi tin nhắn */
     .input-area button {
       background-color: #007bff;
       color: white;
@@ -115,7 +113,6 @@
       background-color: #0056b3;
     }
 
-    /* Select và nút trong header */
     select, .header button {
       padding: 6px 10px;
       font-size: 14px;
@@ -133,17 +130,33 @@
     .header button:hover {
       background-color: #218838;
     }
+
+    /* Loader đang chờ phản hồi */
+    .loader {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #007bff;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      animation: spin 1s linear infinite;
+      margin: 10px auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
-  <!-- Tiêu đề có chứa logo -->
+  <!-- Logo hoặc tiêu đề trang -->
   <h2>
     <img src="logo/logo.png" alt="Logo" style="width: 100px; height: 100px; vertical-align: middle; margin-right: 10px;">
   </h2>
 
-  <!-- Khung chat -->
+  <!-- Khung chat chính -->
   <div class="chat-container">
-    <!-- Thanh header với dropdown session và nút tạo session mới -->
+    <!-- Phần header chọn session -->
     <div class="header">
       <div>
         <label for="sessionList">Session:</label>
@@ -154,10 +167,10 @@
       <button onclick="createNewSession()">+ Tạo Mới</button>
     </div>
 
-    <!-- Khu chat chính -->
+    <!-- Vùng hiển thị nội dung chat -->
     <div id="chat" class="chat"></div>
 
-    <!-- Ô nhập liệu và nút gửi -->
+    <!-- Khu vực nhập tin nhắn -->
     <div class="input-area">
       <input type="text" id="input" placeholder="Nhập tin nhắn..."/>
       <button onclick="sendMessage()">Gửi</button>
@@ -165,18 +178,18 @@
   </div>
 
   <script>
-    // ==== BIẾN VÀ KHỞI TẠO ====
+    // Khai báo các biến chính
     const chat = document.getElementById('chat');
     const input = document.getElementById('input');
     const sessionList = document.getElementById('sessionList');
-    
+
     let currentSession = 'default';
     let chatSessions = {
       'default': []
     };
 
     /**
-     * Hàm tạo session mới nếu tên hợp lệ và chưa tồn tại
+     * Tạo một session mới và thêm vào danh sách
      */
     function createNewSession() {
       const newSessionId = prompt("Nhập tên session mới:");
@@ -193,7 +206,7 @@
     }
 
     /**
-     * Hàm chọn session hiện tại và load nội dung
+     * Đổi session hiện tại
      */
     function selectSession(sessionId) {
       currentSession = sessionId;
@@ -201,7 +214,7 @@
     }
 
     /**
-     * Hàm load lại toàn bộ tin nhắn từ session đang chọn
+     * Tải lại các tin nhắn của session hiện tại
      */
     function loadSession() {
       currentSession = sessionList.value;
@@ -214,7 +227,7 @@
     }
 
     /**
-     * Gửi tin nhắn từ người dùng và gọi API để nhận phản hồi từ bot
+     * Gửi tin nhắn từ người dùng, gọi API và nhận phản hồi
      */
     async function sendMessage() {
       const message = input.value.trim();
@@ -224,8 +237,10 @@
       chatSessions[currentSession].push({ sender: 'user', text: message });
       input.value = '';
 
+      showLoader();
+
       try {
-        const response = await fetch('https://14ba-34-125-239-255.ngrok-free.app/chat', {
+        const response = await fetch('https://15ff-34-124-158-126.ngrok-free.app/chat', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -234,27 +249,51 @@
         });
 
         const data = await response.json();
+        hideLoader();
+
         const botReply = data.reply || '[Không có phản hồi]';
         addMessage('bot', botReply);
         chatSessions[currentSession].push({ sender: 'bot', text: botReply });
       } catch (error) {
+        hideLoader();
         addMessage('bot', '[Lỗi kết nối đến API]');
         console.error(error);
       }
     }
 
     /**
-     * Thêm một tin nhắn vào khung chat
+     * Thêm tin nhắn vào khung chat
+     * @param {string} sender - 'user' hoặc 'bot'
+     * @param {string} text - nội dung tin nhắn
      */
     function addMessage(sender, text) {
       const msgDiv = document.createElement('div');
       msgDiv.className = 'message ' + sender;
-      msgDiv.textContent = text;
+      msgDiv.innerHTML = text.replace(/\n/g, "<br>");  // Chuyển dòng mới sang <br>
       chat.appendChild(msgDiv);
       chat.scrollTop = chat.scrollHeight;
     }
 
-    // Gửi tin khi nhấn Enter
+    /**
+     * Hiển thị vòng quay chờ phản hồi
+     */
+    function showLoader() {
+      const loaderDiv = document.createElement('div');
+      loaderDiv.id = 'loader';
+      loaderDiv.className = 'loader';
+      chat.appendChild(loaderDiv);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    /**
+     * Ẩn vòng quay khi nhận xong phản hồi
+     */
+    function hideLoader() {
+      const loader = document.getElementById('loader');
+      if (loader) loader.remove();
+    }
+
+    // Gửi tin nhắn khi nhấn phím Enter
     input.addEventListener('keydown', function(e) {
       if (e.key === 'Enter') sendMessage();
     });
